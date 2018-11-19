@@ -5,13 +5,10 @@
 # Number of nifi nodes
 replicaCount: 2
 
-nifi:
-  version: "1.6.0"
-
 image:
-  repository: pepov/nifi
+  repository: apache/nifi
   pullPolicy: IfNotPresent
-  tag: "1.6.0"
+  tag: "1.8.0"
 
 sts:
   # Parallel podManagementPolicy for faster bootstrap and teardown. Default is OrderedReady.
@@ -115,8 +112,8 @@ zookeeper:
 
 ca:
   image:
-    repository: pepov/nifi-toolkit
-    tag: "1.7.0-SNAPSHOT"
+    repository: apache/nifi-toolkit
+    tag: "1.8.0"
     pullPolicy: IfNotPresent
   certgenImage:
     repository: pepov/ca-cert-generator
