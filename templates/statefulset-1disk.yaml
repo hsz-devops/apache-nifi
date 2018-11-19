@@ -365,7 +365,7 @@ spec:
         name: "single-disk"
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: {{ .Values.storageClass | quote }}
+        storageClassName: {{ .Values.nifiSingleDisk.storageClass |default .Values.storageClass | quote }}
         resources:
           requests:
             storage: {{ .Values.nifiSingleDisk.storageSize }}
