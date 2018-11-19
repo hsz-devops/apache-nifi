@@ -1,4 +1,5 @@
-{{- if or (not .Values.nifiSingleDisk) (not .Values.nifiSingleDisk.enabled) }}
+{{- if .Values.nifiSingleDisk }}
+{{- if .Values.nifiSingleDisk.enabled }}
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
@@ -117,7 +118,8 @@ spec:
           openssl pkcs12 -in "keystore.pkcs12" -out "key.pem" -nocerts -nodes -password "env:PASS"
           openssl pkcs12 -in "keystore.pkcs12" -out "crt.pem" -clcerts -nokeys -password "env:PASS"
         volumeMounts:
-          - name: "data"
+          - name: "single-disk"
+            subPath: "data"
             mountPath: /data
           - name: ca-mitm-token
             mountPath: /etc/ca-mitm-token
@@ -145,7 +147,7 @@ spec:
           else
             cat "${NIFI_HOME}/conf/authorizers.empty" > "${NIFI_HOME}/conf/authorizers.xml"
           fi
-          
+
           prop_replace nifi.remote.input.host ${FQDN}
           prop_replace nifi.cluster.node.address ${FQDN}
           prop_replace nifi.zookeeper.connect.string ${NIFI_ZOOKEEPER_CONNECT_STRING}
@@ -228,15 +230,20 @@ spec:
             port: {{ .Values.properties.httpPort }}
 {{- end }}
         volumeMounts:
-          - name: "data"
+          - name: "single-disk"
+            subPath: "data"
             mountPath: /opt/nifi/data
-          - name: "flowfile-repository"
+          - name: "single-disk"
+            subPath: "flowfile-repository"
             mountPath: /opt/nifi/flowfile_repository
-          - name: "content-repository"
+          - name: "single-disk"
+            subPath: "content-repository"
             mountPath: /opt/nifi/content_repository
-          - name: "provenance-repository"
+          - name: "single-disk"
+            subPath: "provenance-repository"
             mountPath: /opt/nifi/provenance_repository
-          - name: "logs"
+          - name: "single-disk"
+            subPath: "logs"
             mountPath: /opt/nifi/nifi-{{ .Values.nifi.version }}/logs
           - name: "bootstrap-conf"
             mountPath: /opt/nifi/nifi-{{ .Values.nifi.version }}/conf/bootstrap.conf
@@ -271,7 +278,8 @@ spec:
         resources:
 {{ toYaml .Values.logresources | indent 10 }}
         volumeMounts:
-        - name: logs
+        - name: "single-disk"
+          subPath: logs
           mountPath: /var/log
       - name: bootstrap-log
         image: {{ .Values.sidecar.image }}
@@ -279,7 +287,8 @@ spec:
         resources:
 {{ toYaml .Values.logresources | indent 10 }}
         volumeMounts:
-        - name: logs
+        - name: "single-disk"
+          subPath: logs
           mountPath: /var/log
       - name: user-log
         image: {{ .Values.sidecar.image }}
@@ -287,7 +296,8 @@ spec:
         resources:
 {{ toYaml .Values.logresources | indent 10 }}
         volumeMounts:
-        - name: logs
+        - name: "single-disk"
+          subPath: logs
           mountPath: /var/log
       volumes:
       - name: "bootstrap-conf"
@@ -349,43 +359,12 @@ spec:
           secretName: {{ template "apache-nifi.fullname" . }}-ca-mitm-token
   volumeClaimTemplates:
     - metadata:
-        name: "data"
+        name: "single-disk"
       spec:
         accessModes: ["ReadWriteOnce"]
         storageClassName: {{ .Values.storageClass | quote }}
         resources:
           requests:
-            storage: {{ .Values.dataStorage }}
-    - metadata:
-        name: "flowfile-repository"
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: {{ .Values.storageClass | quote }}
-        resources:
-          requests:
-            storage: {{ .Values.flowfileRepoStorage }}
-    - metadata:
-        name: "content-repository"
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: {{ .Values.storageClass | quote }}
-        resources:
-          requests:
-            storage: {{ .Values.contentRepoStorage }}
-    - metadata:
-        name: "provenance-repository"
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: {{ .Values.storageClass | quote }}
-        resources:
-          requests:
-            storage: {{ .Values.provenanceRepoStorage }}
-    - metadata:
-        name: "logs"
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        storageClassName: {{ .Values.storageClass | quote }}
-        resources:
-          requests:
-            storage: {{ .Values.logStorage }}
+            storage: {{ .Values.nifiSingleDisk.storageSize }}
+{{- end }}
 {{- end }}
