@@ -111,6 +111,8 @@ zookeeper:
   port: 2181
 
 ca:
+  enabled: false
+  # enabled: true
   image:
     repository: apache/nifi-toolkit
     tag: "1.8.0"
@@ -119,7 +121,6 @@ ca:
     repository: pepov/ca-cert-generator
     tag: latest
     pullPolicy: IfNotPresent
-  enabled: true
   port: 8443
   service:
     type: ClusterIP
