@@ -66,7 +66,8 @@ spec:
         - sh
         - -c
         - |
-          until nc -vzw 1 {{ .Release.Name }}-zookeeper 2181; do
+          echo trying to contact {{ template "zookeeper.server" . }} {{ .Values.zookeeper.port }}
+          until nc -vzw 1 {{ template "zookeeper.server" . }} {{ .Values.zookeeper.port }}; do
             echo "waiting for zookeeper..."
             sleep 2
           done

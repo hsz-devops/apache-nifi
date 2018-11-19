@@ -32,8 +32,20 @@ Create chart name and version as used by the chart label.
 {{- end -}}
 
 {{/*
-Form the Zookeeper URL. If zookeeper is installed as part of this chart, use k8s service discovery,
-else use user-provided URL
+Form the Zookeeper Server part of the URL. If zookeeper is installed as part of this chart, use k8s service discovery,
+else use user-provided server name
+*/}}
+{{- define "zookeeper.server" }}
+{{- if .Values.zookeeper.enabled -}}
+{{- printf "%s-zookeeper" .Release.Name }}
+{{- else -}}
+{{- printf "%s" .Values.zookeeper.url }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Form the Zookeeper URL and port. If zookeeper is installed as part of this chart, use k8s service discovery,
+else use user-provided name and port
 */}}
 {{- define "zookeeper.url" }}
 {{- $port := .Values.zookeeper.port | toString }}
