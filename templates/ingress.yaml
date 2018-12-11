@@ -25,13 +25,13 @@ metadata:
       nginx.ingress.kubernetes.io/auth-secret: {{ .Values.ingress.auth.basic_secret |default (printf "%s--%s" .Release.Name "secrets-auth") |quote }}
       # message to display with an appropriate context why the authentication is required
       nginx.ingress.kubernetes.io/auth-realm: {{ printf "%s: %s" "Authentication Required" (include "apache-nifi.name" .) |quote }}
-    {{-        if .Values.properties.externalSecure }}
-      nginx.ingress.kubernetes.io/custom-request-headers: X-ProxyScheme:https||X-ProxyHost:{{ .Values.ingress.host }}||X-ProxyPort:443
-    {{-        else }}
-      nginx.ingress.kubernetes.io/custom-request-headers: X-ProxyScheme:http||X-ProxyHost:{{ .Values.ingress.host }}||X-ProxyPort:80
-    {{-        end }}
     {{-      end }}
     {{-   end }}
+    {{- end }}
+    {{- if .Values.properties.externalSecure }}
+      nginx.ingress.kubernetes.io/custom-request-headers: X-ProxyScheme:https||X-ProxyHost:{{ .Values.ingress.host }}||X-ProxyPort:443
+    {{- else }}
+      nginx.ingress.kubernetes.io/custom-request-headers: X-ProxyScheme:http||X-ProxyHost:{{ .Values.ingress.host }}||X-ProxyPort:80
     {{- end }}
 spec:
   rules:
